@@ -5,17 +5,23 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
   publish-pyroscope:
     name: pyroscope-lib
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: "startsWith(github.event.release.tag_name, 'lib-')"
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: stable
-          override: true
       - name: publish pyroscope crate
         continue-on-error: true
         run: |
@@ -26,13 +32,13 @@ jobs:
 #    runs-on: ubuntu-latest
 #    if: "startsWith(github.event.release.tag_name, 'cli-')"
 #    steps:
-#      - uses: actions/checkout@v3
+#      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 #        with:
 #          submodules: recursive
-#      - uses: actions-rs/toolchain@v1
+#          persist-credentials: false
+#      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
 #        with:
 #          toolchain: stable
-#          override: true
 #      - name: install libunwind (for pprof)
 #        run: sudo apt install libunwind8-dev
 #      - name: publish pyroscope crate
@@ -43,13 +49,16 @@ jobs:
   publish-pprofrs:
     name: "Backend: pprofrs"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: "startsWith(github.event.release.tag_name, 'pprofrs-')"
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: stable
-          override: true
       - name: publish pprofrs crate
         continue-on-error: true
         run: |
@@ -58,59 +67,70 @@ jobs:
   publish-rbspy:
     name: "Backend: rbspy"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: "startsWith(github.event.release.tag_name, 'rbspy-')"
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: stable
-          override: true
       - name: publish rbspy crate
         continue-on-error: true
         run: |
           cargo login ${{ secrets.CARGO_TOKEN }}
           cargo publish --manifest-path pyroscope_backends/pyroscope_rbspy/Cargo.toml
   publish-pyspy:
-    name: "Backend: pyspy" 
+    name: "Backend: pyspy"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: "startsWith(github.event.release.tag_name, 'pyspy-')"
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: stable
-          override: true
       - name: publish pyspy crate
         continue-on-error: true
         run: |
           cargo login ${{ secrets.CARGO_TOKEN }}
           cargo publish --manifest-path pyroscope_backends/pyroscope_pyspy/Cargo.toml
   publish-python:
-    name: "Python" 
+    name: "Python"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     if: "startsWith(github.event.release.tag_name, 'python-')"
     steps:
-      - uses: robinraju/release-downloader@v1.4
-        with: 
+      - uses: robinraju/release-downloader@ed86e52bc497d1185844fc28454c5999aaed2fa5 # v1.4
+        with:
           tag: ${{ github.event.release.tag_name }}
           fileName: "*"
-          tarBall: false 
-          zipBall: false 
+          tarBall: false
+          zipBall: false
           out-file-path: "dist"
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish a Python distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
   list-ruby-gems:
     name: "List ruby gems"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: "startsWith(github.event.release.tag_name, 'ruby-')"
     outputs:
       files_json: ${{ steps.list-files.outputs.files_json }}
     steps:
-      - uses: robinraju/release-downloader@v1.4
+      - uses: robinraju/release-downloader@ed86e52bc497d1185844fc28454c5999aaed2fa5 # v1.4
         with:
           tag: ${{ github.event.release.tag_name }}
           fileName: "*"
@@ -128,6 +148,8 @@ jobs:
     needs: list-ruby-gems
     name: "gem push"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: "startsWith(github.event.release.tag_name, 'ruby-')"
     env:
       GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
@@ -135,17 +157,20 @@ jobs:
       matrix:
         file: ${{ fromJson(needs.list-ruby-gems.outputs.files_json) }}
     steps:
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@e5517072e87f198d9533967ae13d97c11b604005 # v1.99.0
         with:
           ruby-version: '3.1'
-      - uses: robinraju/release-downloader@v1.4
-        with: 
+      - uses: robinraju/release-downloader@ed86e52bc497d1185844fc28454c5999aaed2fa5 # v1.4
+        with:
           tag: ${{ github.event.release.tag_name }}
           fileName: "*"
-          tarBall: false 
-          zipBall: false 
+          tarBall: false
+          zipBall: false
           out-file-path: "dist"
           token: ${{ secrets.GITHUB_TOKEN }}
-      - run: |
+      - name: Push gem
+        env:
+          GEM_FILE: ${{ matrix.file }}
+        run: |
           cd dist
-          gem push ${{ matrix.file }}
+          gem push "$GEM_FILE"

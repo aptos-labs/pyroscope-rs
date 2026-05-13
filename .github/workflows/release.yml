@@ -2,27 +2,36 @@ name: Pre-Release
 
 on: [ push ]
 
+permissions:
+  contents: read
+
 jobs:
   lib-release:
     name: pyroscope-main
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: "startsWith(github.ref, 'refs/tags/lib-')"
     continue-on-error: true
     steps:
-      - uses: "marvinpinto/action-automatic-releases@v1.2.1"
+      - uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ github.ref_name }}"
-          title: "pyroscope-${{ github.ref_name }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ github.ref_name }}"
+          name: "pyroscope-${{ github.ref_name }}"
           draft: true
           prerelease: false
   clibuilder-release:
     name: clibuilder-release
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: "startsWith(github.ref, 'refs/tags/clibuilder-')"
     steps:
-      - uses: actions/checkout@v3
-      - uses: docker/login-action@v2
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
+      - uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2
         name: Login to Docker Hub
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -32,10 +41,14 @@ jobs:
   manylinux-release:
     name: manylinux-release
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: "startsWith(github.ref, 'refs/tags/manylinux-')"
     steps:
-      - uses: actions/checkout@v3
-      - uses: docker/login-action@v2
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
+      - uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2
         name: Login to Docker Hub
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -46,27 +59,32 @@ jobs:
   cli-release:
     name: pyroscope-cli
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: "startsWith(github.ref, 'refs/tags/cli-')"
     outputs:
       upload_url: ${{ steps.auto-release.outputs.upload_url }}
     steps:
       - id: auto-release
-        uses: "marvinpinto/action-automatic-releases@v1.2.1"
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ github.ref_name }}"
-          title: "pyroscope-${{ github.ref_name }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ github.ref_name }}"
+          name: "pyroscope-${{ github.ref_name }}"
           draft: true
           prerelease: false
   cli-artifacts:
     name: pyroscope-cli - build aritifacts
     needs: cli-release
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
         with:
+          persist-credentials: false
           submodules: recursive
-      - uses: docker/login-action@v2
+      - uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2
         name: Login to Docker Hub
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -75,7 +93,7 @@ jobs:
       - run: DOCKER_EXTRA="--output=." make cli/docker-image
 
       - name: Upload release archive
-        uses: actions/upload-release-asset@v1.0.1
+        uses: korniltsev/actions-upload-release-asset@a7f1a48a96ff80f206fd26bdbfcf81539d44fa5e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -86,57 +104,67 @@ jobs:
   pprofrs-release:
     name: pyroscope-pprofrs
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: "startsWith(github.ref, 'refs/tags/pprofrs-')"
     continue-on-error: true
     steps:
-      - uses: "marvinpinto/action-automatic-releases@v1.2.1"
+      - uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ github.ref_name }}"
-          title: "Backend: ${{ github.ref_name }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ github.ref_name }}"
+          name: "Backend: ${{ github.ref_name }}"
           draft: true
           prerelease: false
   rbspy-release:
     name: pyroscope-rbspy
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: "startsWith(github.ref, 'refs/tags/rbspy-')"
     continue-on-error: true
     steps:
-      - uses: "marvinpinto/action-automatic-releases@v1.2.1"
+      - uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ github.ref_name }}"
-          title: "Backend: ${{ github.ref_name }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ github.ref_name }}"
+          name: "Backend: ${{ github.ref_name }}"
           draft: true
           prerelease: false
   pyspy-release:
     name: pyroscope-pyspy
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: "startsWith(github.ref, 'refs/tags/pyspy-')"
     continue-on-error: true
     steps:
-      - uses: "marvinpinto/action-automatic-releases@v1.2.1"
+      - uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ github.ref_name }}"
-          title: "Backend: ${{ github.ref_name }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ github.ref_name }}"
+          name: "Backend: ${{ github.ref_name }}"
           draft: true
           prerelease: false
   python-release-linux:
     needs: [ 'python-release' ]
     name: Release python linux amd64
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: AutoModality/action-clean@v1
-      - uses: actions/checkout@v3
+      - uses: AutoModality/action-clean@492b2d2e2e77247bfd0b17eaa89a371b2f3430ee # v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
       - run: make wheel/linux/amd64
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
         with:
           name: ${{ github.sha }}
           path: pyroscope_ffi/python/dist/*
 
       - name: Upload release artifact
-        uses: korniltsev/actions-upload-release-asset@v1
+        uses: korniltsev/actions-upload-release-asset@a7f1a48a96ff80f206fd26bdbfcf81539d44fa5e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -146,18 +174,22 @@ jobs:
     needs: [ 'python-release' ]
     name: Release python linux arm64
     runs-on: [self-hosted, Linux, ARM64]
+    permissions:
+      contents: write
 
     steps:
-      - uses: AutoModality/action-clean@v1
-      - uses: actions/checkout@v3
+      - uses: AutoModality/action-clean@492b2d2e2e77247bfd0b17eaa89a371b2f3430ee # v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
       - run: make wheel/linux/arm64
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
         with:
           name: ${{ github.sha }}
           path: pyroscope_ffi/python/dist/*
 
       - name: Upload release artifact
-        uses: korniltsev/actions-upload-release-asset@v1
+        uses: korniltsev/actions-upload-release-asset@a7f1a48a96ff80f206fd26bdbfcf81539d44fa5e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -180,30 +212,32 @@ jobs:
 
     name: macOS - ${{ matrix.py-platform }}
     runs-on: macos-${{ matrix.macos-version }}
+    permissions:
+      contents: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
 
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: 1.76.0
-          target: ${{ matrix.target }}
-          profile: minimal
-          override: true
+          targets: ${{ matrix.target }}
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@7f4fc3e22c37d6ff65e88745f38bd3157c663f7c # v4
         with:
           python-version: 3.11
 
       - run: make pyroscope_ffi/clean wheel/mac/${{ matrix.mk-arch }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
         with:
           name: ${{ github.sha }}
           path: pyroscope_ffi/python/dist/*
 
       - name: Upload release artifact
-        uses: korniltsev/actions-upload-release-asset@v1
+        uses: korniltsev/actions-upload-release-asset@a7f1a48a96ff80f206fd26bdbfcf81539d44fa5e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -213,12 +247,16 @@ jobs:
     needs: [ 'python-release' ]
     name: sdist
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - uses: AutoModality/action-clean@v1
-      - uses: actions/checkout@v3
+      - uses: AutoModality/action-clean@492b2d2e2e77247bfd0b17eaa89a371b2f3430ee # v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@7f4fc3e22c37d6ff65e88745f38bd3157c663f7c # v4
         with:
           python-version: 3.9
       - name: Upgrade pip
@@ -228,13 +266,13 @@ jobs:
         run: python setup.py sdist
         working-directory: pyroscope_ffi/python
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
         with:
           name: ${{ github.sha }}
           path: pyroscope_ffi/python/dist/*
 
       - name: Upload release artifact
-        uses: korniltsev/actions-upload-release-asset@v1
+        uses: korniltsev/actions-upload-release-asset@a7f1a48a96ff80f206fd26bdbfcf81539d44fa5e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -243,34 +281,40 @@ jobs:
   python-release:
     name: Python Package
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: "startsWith(github.ref, 'refs/tags/python-')"
     continue-on-error: true
     outputs:
       upload_url: ${{ steps.auto-release.outputs.upload_url }}
     steps:
       - id: auto-release
-        uses: "marvinpinto/action-automatic-releases@v1.2.1"
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ github.ref_name }}"
-          title: "Python Package: ${{ github.ref_name }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ github.ref_name }}"
+          name: "Python Package: ${{ github.ref_name }}"
           draft: true
           prerelease: false
   ruby-release-linux:
     needs: [ 'ruby-release' ]
     name: Release Linux gem amd64
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: AutoModality/action-clean@v1
-      - uses: actions/checkout@v3
+      - uses: AutoModality/action-clean@492b2d2e2e77247bfd0b17eaa89a371b2f3430ee # v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
       - run: make gem/linux/amd64
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
         with:
           name: ${{ github.sha }}
           path: pyroscope_ffi/ruby/pkg/*.gem
 
       - name: Upload release artifact
-        uses: korniltsev/actions-upload-release-asset@v1
+        uses: korniltsev/actions-upload-release-asset@a7f1a48a96ff80f206fd26bdbfcf81539d44fa5e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -281,17 +325,21 @@ jobs:
     needs: [ 'ruby-release' ]
     name: Release Linux gem arm64
     runs-on: [ self-hosted, Linux, ARM64 ]
+    permissions:
+      contents: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
       - run: make gem/linux/arm64
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
         with:
           name: ${{ github.sha }}
           path: pyroscope_ffi/ruby/pkg/*.gem
 
       - name: Upload release artifact
-        uses: korniltsev/actions-upload-release-asset@v1
+        uses: korniltsev/actions-upload-release-asset@a7f1a48a96ff80f206fd26bdbfcf81539d44fa5e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -313,28 +361,30 @@ jobs:
 
     name: macOS - ${{ matrix.target }}
     runs-on: macos-${{ matrix.macos-version }}
+    permissions:
+      contents: write
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@e5517072e87f198d9533967ae13d97c11b604005 # v1.99.0
         with:
           ruby-version: '3.1'
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: 1.76.0
-          target: ${{ matrix.target }}
-          profile: minimal
-          override: true
+          targets: ${{ matrix.target }}
 
       - run: make pyroscope_ffi/clean gem/mac/${{ matrix.mk-arch }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
         with:
           name: ${{ github.sha }}
           path: pyroscope_ffi/ruby/pkg/*.gem
 
       - name: Upload release artifact
-        uses: korniltsev/actions-upload-release-asset@v1
+        uses: korniltsev/actions-upload-release-asset@a7f1a48a96ff80f206fd26bdbfcf81539d44fa5e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -345,12 +395,16 @@ jobs:
     needs: [ 'ruby-release' ]
     name: source
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - uses: AutoModality/action-clean@v1
-      - uses: actions/checkout@v3
+      - uses: AutoModality/action-clean@492b2d2e2e77247bfd0b17eaa89a371b2f3430ee # v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
 
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@e5517072e87f198d9533967ae13d97c11b604005 # v1.99.0
         with:
           ruby-version: '3.1'
 
@@ -362,13 +416,13 @@ jobs:
         run: rake source:gem
         working-directory: pyroscope_ffi/ruby
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
         with:
           name: ${{ github.sha }}
           path: pyroscope_ffi/ruby/pkg/*.gem
 
       - name: Upload release artifact
-        uses: korniltsev/actions-upload-release-asset@v1
+        uses: korniltsev/actions-upload-release-asset@a7f1a48a96ff80f206fd26bdbfcf81539d44fa5e # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -378,16 +432,18 @@ jobs:
   ruby-release:
     name: Ruby Gem
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: "startsWith(github.ref, 'refs/tags/ruby-')"
     continue-on-error: true
     outputs:
       upload_url: ${{ steps.auto-release.outputs.upload_url }}
     steps:
       - id: auto-release
-        uses: "marvinpinto/action-automatic-releases@v1.2.1"
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ github.ref_name }}"
-          title: "Ruby Gem: ${{ github.ref_name }}"
+          token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ github.ref_name }}"
+          name: "Ruby Gem: ${{ github.ref_name }}"
           draft: true
           prerelease: false
