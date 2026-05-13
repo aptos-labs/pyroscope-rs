@@ -171,9 +171,9 @@ jobs:
         with:
           persist-credentials: false
       - run: make wheel/linux/amd64
-      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ github.sha }}
+          name: python-linux-amd64-${{ github.sha }}
           path: pyroscope_ffi/python/dist/*
 
       - name: Upload release artifact
@@ -196,9 +196,9 @@ jobs:
         with:
           persist-credentials: false
       - run: make wheel/linux/arm64
-      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ github.sha }}
+          name: python-linux-arm64-${{ github.sha }}
           path: pyroscope_ffi/python/dist/*
 
       - name: Upload release artifact
@@ -244,9 +244,9 @@ jobs:
 
       - run: make pyroscope_ffi/clean wheel/mac/${{ matrix.mk-arch }}
 
-      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ github.sha }}
+          name: python-macos-${{ matrix.mk-arch }}-${{ github.sha }}
           path: pyroscope_ffi/python/dist/*
 
       - name: Upload release artifact
@@ -279,9 +279,9 @@ jobs:
         run: python setup.py sdist
         working-directory: pyroscope_ffi/python
 
-      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ github.sha }}
+          name: python-sdist-${{ github.sha }}
           path: pyroscope_ffi/python/dist/*
 
       - name: Upload release artifact
@@ -319,9 +319,9 @@ jobs:
         with:
           persist-credentials: false
       - run: make gem/linux/amd64
-      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ github.sha }}
+          name: ruby-linux-amd64-${{ github.sha }}
           path: pyroscope_ffi/ruby/pkg/*.gem
 
       - name: Upload release artifact
@@ -344,9 +344,9 @@ jobs:
         with:
           persist-credentials: false
       - run: make gem/linux/arm64
-      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ github.sha }}
+          name: ruby-linux-arm64-${{ github.sha }}
           path: pyroscope_ffi/ruby/pkg/*.gem
 
       - name: Upload release artifact
@@ -389,9 +389,9 @@ jobs:
 
       - run: make pyroscope_ffi/clean gem/mac/${{ matrix.mk-arch }}
 
-      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ github.sha }}
+          name: ruby-macos-${{ matrix.mk-arch }}-${{ github.sha }}
           path: pyroscope_ffi/ruby/pkg/*.gem
 
       - name: Upload release artifact
@@ -427,9 +427,9 @@ jobs:
         run: rake source:gem
         working-directory: pyroscope_ffi/ruby
 
-      - uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ github.sha }}
+          name: ruby-source-${{ github.sha }}
           path: pyroscope_ffi/ruby/pkg/*.gem
 
       - name: Upload release artifact
