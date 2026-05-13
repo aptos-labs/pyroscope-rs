@@ -1,0 +1,43 @@
+name: Create Release
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+      release_name:
+        required: true
+        type: string
+      draft:
+        required: false
+        type: boolean
+        default: true
+      prerelease:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      token:
+        required: true
+    outputs:
+      upload_url:
+        description: "Upload URL for release assets"
+        value: ${{ jobs.create-release.outputs.upload_url }}
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      upload_url: ${{ steps.release.outputs.upload_url }}
+    steps:
+      - id: release
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
+        with:
+          token: ${{ secrets.token }}
+          tag: ${{ inputs.tag }}
+          name: ${{ inputs.release_name }}
+          draft: ${{ inputs.draft }}
+          prerelease: ${{ inputs.prerelease }}

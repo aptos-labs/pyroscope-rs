@@ -6,16 +6,23 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   linux-build:
     name: Build linux gem amd64
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-      - uses: AutoModality/action-clean@v1
-      - uses: actions/checkout@v3
+      - uses: AutoModality/action-clean@492b2d2e2e77247bfd0b17eaa89a371b2f3430ee # v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
       - run: make gem/linux/amd64
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: "linux.gem"
           path: pyroscope_ffi/ruby/pkg/*.gem
@@ -32,25 +39,27 @@ jobs:
             mk-arch: arm64
     name: macOS - ${{ matrix.target }}
     runs-on: macos-${{ matrix.macos-version }}
+    permissions:
+      contents: read
 
     env:
       RUST_TARGET: ${{ matrix.target }}
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@e5517072e87f198d9533967ae13d97c11b604005 # v1.99.0
         with:
           ruby-version: '3.1'
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: 1.76.0
-          target: ${{ matrix.target }}
-          profile: minimal
-          override: true
+          targets: ${{ matrix.target }}
       - run: make gem/mac/${{ matrix.mk-arch }}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ github.sha }}
+          name: macos-${{ matrix.mk-arch }}-gem
           path: pyroscope_ffi/ruby/pkg/*.gem
 
   linux-test:
@@ -63,17 +72,21 @@ jobs:
     needs: ['linux-build']
     name: Linux Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@e5517072e87f198d9533967ae13d97c11b604005 # v1.99.0
         with:
           ruby-version: ${{ matrix.RUBY_VERSION }}
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: "linux.gem"
           path: "${{github.workspace}}/ruby"
       - run: "cd ${{ github.workspace }}/ruby && ls -l"
       - run: "cd ${{ github.workspace }}/ruby && gem install *.gem"
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+        with:
+          persist-credentials: false
       - name: Run Ruby Script
         run: pyroscope_ffi/ruby/scripts/tests/test.rb
         env:
@@ -83,4 +96,3 @@ jobs:
           PYROSCOPE_DETECT_SUBPROCESSES: ${{ matrix.PYROSCOPE_DETECT_SUBPROCESSES }}
           PYROSCOPE_ONCPU: ${{ matrix.PYROSCOPE_ONCPU }}
           RUBY_VERSION: ${{ matrix.RUBY_VERSION }}
-
