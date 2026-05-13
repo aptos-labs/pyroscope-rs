@@ -8,19 +8,19 @@ permissions:
 jobs:
   lib-release:
     name: pyroscope-main
-    runs-on: ubuntu-latest
     permissions:
       contents: write
     if: "startsWith(github.ref, 'refs/tags/lib-')"
     continue-on-error: true
-    steps:
-      - uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          tag: "${{ github.ref_name }}"
-          name: "pyroscope-${{ github.ref_name }}"
-          draft: true
-          prerelease: false
+    uses: ./.github/workflows/create-release.yml
+    with:
+      tag: ${{ github.ref_name }}
+      release_name: "pyroscope-${{ github.ref_name }}"
+      draft: true
+      prerelease: false
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
   clibuilder-release:
     name: clibuilder-release
     runs-on: ubuntu-latest
@@ -58,21 +58,18 @@ jobs:
 
   cli-release:
     name: pyroscope-cli
-    runs-on: ubuntu-latest
     permissions:
       contents: write
     if: "startsWith(github.ref, 'refs/tags/cli-')"
-    outputs:
-      upload_url: ${{ steps.auto-release.outputs.upload_url }}
-    steps:
-      - id: auto-release
-        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          tag: "${{ github.ref_name }}"
-          name: "pyroscope-${{ github.ref_name }}"
-          draft: true
-          prerelease: false
+    uses: ./.github/workflows/create-release.yml
+    with:
+      tag: ${{ github.ref_name }}
+      release_name: "pyroscope-${{ github.ref_name }}"
+      draft: true
+      prerelease: false
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
   cli-artifacts:
     name: pyroscope-cli - build aritifacts
     needs: cli-release
@@ -101,51 +98,67 @@ jobs:
           asset_path: "./pyroscope-cli"
           asset_name: "pyroscope-cli"
           asset_content_type: application/octet-stream
+
   pprofrs-release:
     name: pyroscope-pprofrs
-    runs-on: ubuntu-latest
     permissions:
       contents: write
     if: "startsWith(github.ref, 'refs/tags/pprofrs-')"
     continue-on-error: true
-    steps:
-      - uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          tag: "${{ github.ref_name }}"
-          name: "Backend: ${{ github.ref_name }}"
-          draft: true
-          prerelease: false
+    uses: ./.github/workflows/create-release.yml
+    with:
+      tag: ${{ github.ref_name }}
+      release_name: "Backend: ${{ github.ref_name }}"
+      draft: true
+      prerelease: false
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
   rbspy-release:
     name: pyroscope-rbspy
-    runs-on: ubuntu-latest
     permissions:
       contents: write
     if: "startsWith(github.ref, 'refs/tags/rbspy-')"
     continue-on-error: true
-    steps:
-      - uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          tag: "${{ github.ref_name }}"
-          name: "Backend: ${{ github.ref_name }}"
-          draft: true
-          prerelease: false
+    uses: ./.github/workflows/create-release.yml
+    with:
+      tag: ${{ github.ref_name }}
+      release_name: "Backend: ${{ github.ref_name }}"
+      draft: true
+      prerelease: false
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
   pyspy-release:
     name: pyroscope-pyspy
-    runs-on: ubuntu-latest
     permissions:
       contents: write
     if: "startsWith(github.ref, 'refs/tags/pyspy-')"
     continue-on-error: true
-    steps:
-      - uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          tag: "${{ github.ref_name }}"
-          name: "Backend: ${{ github.ref_name }}"
-          draft: true
-          prerelease: false
+    uses: ./.github/workflows/create-release.yml
+    with:
+      tag: ${{ github.ref_name }}
+      release_name: "Backend: ${{ github.ref_name }}"
+      draft: true
+      prerelease: false
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
+  python-release:
+    name: Python Package
+    permissions:
+      contents: write
+    if: "startsWith(github.ref, 'refs/tags/python-')"
+    continue-on-error: true
+    uses: ./.github/workflows/create-release.yml
+    with:
+      tag: ${{ github.ref_name }}
+      release_name: "Python Package: ${{ github.ref_name }}"
+      draft: true
+      prerelease: false
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
   python-release-linux:
     needs: [ 'python-release' ]
     name: Release python linux amd64
@@ -278,24 +291,22 @@ jobs:
         with:
           upload_url: ${{ needs.python-release.outputs.upload_url }}
           asset_path: "pyroscope_ffi/python/dist/pyroscope-io-*.tar.gz"
-  python-release:
-    name: Python Package
-    runs-on: ubuntu-latest
+
+  ruby-release:
+    name: Ruby Gem
     permissions:
       contents: write
-    if: "startsWith(github.ref, 'refs/tags/python-')"
+    if: "startsWith(github.ref, 'refs/tags/ruby-')"
     continue-on-error: true
-    outputs:
-      upload_url: ${{ steps.auto-release.outputs.upload_url }}
-    steps:
-      - id: auto-release
-        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          tag: "${{ github.ref_name }}"
-          name: "Python Package: ${{ github.ref_name }}"
-          draft: true
-          prerelease: false
+    uses: ./.github/workflows/create-release.yml
+    with:
+      tag: ${{ github.ref_name }}
+      release_name: "Ruby Gem: ${{ github.ref_name }}"
+      draft: true
+      prerelease: false
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+
   ruby-release-linux:
     needs: [ 'ruby-release' ]
     name: Release Linux gem amd64
@@ -428,22 +439,3 @@ jobs:
         with:
           upload_url: ${{ needs.ruby-release.outputs.upload_url }}
           asset_path: "pyroscope_ffi/ruby/pkg/*.gem"
-
-  ruby-release:
-    name: Ruby Gem
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: "startsWith(github.ref, 'refs/tags/ruby-')"
-    continue-on-error: true
-    outputs:
-      upload_url: ${{ steps.auto-release.outputs.upload_url }}
-    steps:
-      - id: auto-release
-        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          tag: "${{ github.ref_name }}"
-          name: "Ruby Gem: ${{ github.ref_name }}"
-          draft: true
-          prerelease: false
